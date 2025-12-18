@@ -1,0 +1,44 @@
+Simulator settings:
+rician: True
+SNR: 2
+TE: [0.01 0.05 0.09 0.13 0.17]
+TI: [1.   1.25 1.5  1.75 2.   2.25 2.5  2.75 3.   3.25 3.5  3.75 4.   4.25
+ 4.5  4.75 5.   5.25 5.5  5.75 6.   6.25 6.5  6.75]
+ntes: None
+tissue: both
+sims: 50000
+distribution: uniform
+z_slice_pos: 0.66
+
+Network parameters:
+depth: 3
+width: 128
+dropout: 0.0
+batch_norm: False
+con: sigmoid
+cons_min: [0.5, 5, 0.05]
+cons_max: [3.0, 100, 0.5]
+
+Other parameters:
+width: 128
+ntes: None
+GM_T1: 1.615
+WM_T1: 0.911
+T1a: 1.65
+GM_T2: 0.083
+WM_T2: 0.075
+T2a: 0.15
+itt: 0.2
+lambd: 0.9
+alpha: 0.68
+
+Training parameters:
+loss_function: MSE
+optimizer: Adam
+learning_rate: 0.001
+batch_size: 32
+validation_split: 0.2
+epochs: 1000
+phys_frac: 0.95
+patience: 100
+physics_informed: True
