@@ -1,8 +1,6 @@
 import os
 import torch
 
-# tqdm is no longer required (no Python loops), but keeping the import
-# is harmless if other files expect it.
 from tqdm.auto import tqdm  # noqa: F401
 
 
@@ -11,9 +9,6 @@ def safe_exp(x: torch.Tensor) -> torch.Tensor:
     return torch.exp(torch.clamp(x, max=80.0))
 
 
-# -----------------------------
-# Automatic thread configuration (Runpod-friendly)
-# -----------------------------
 _TORCH_THREADS_CONFIGURED = False
 
 
@@ -54,12 +49,10 @@ def _configure_torch_threads_once() -> None:
     host = os.cpu_count() or 1
     num_threads = min(host, quota) if quota is not None else host
 
-    # Practical defaults: intra-op = quota, inter-op small
     try:
         torch.set_num_threads(int(num_threads))
         torch.set_num_interop_threads(int(min(4, num_threads)))
     except Exception:
-        # If torch disallows setting threads in this context, ignore.
         pass
 
     _TORCH_THREADS_CONFIGURED = True
@@ -113,7 +106,7 @@ def torch_deltaM_multite_model_batch(
     tis, tes, ntes, att, cbf, texch, m0a, taus,
     t1=1.3, t1b=1.65, t2=0.050, t2b=0.150,
     itt=0.2, lambd=0.9, alpha=0.68,
-    show_progress=False,  # kept for API compatibility; unused in vectorized implementation
+    show_progress=False,
 ):
     """
     Fully vectorized batch wrapper.
@@ -154,7 +147,7 @@ def torch_deltaM_multite_model_batch(
     ti = ti_base.expand(B, L)
     tau = tau_base.expand(B, L)
 
-    # cbf in ml/min/100g -> ml/s/g (keep exactly as your original code)
+    # cbf in ml/min/100g -> ml/s/g 
     f = cbf / 100.0 * 60.0 / 6000.0  # (B,1)
 
     # Constants as tensors
@@ -191,13 +184,13 @@ def torch_deltaM_multite_model_batch(
     S_ex  = torch.zeros((B, L), dtype=torch.float32, device=device)
 
     # -------------------------
-    # Case definitions (mirror your original branching)
+    # Case definitions 
     # -------------------------
     mask1 = (ti > 0.0) & (ti < att)  # all-zero
 
     mask2 = (ti >= att) & (ti < att_itt)  # Case 2
 
-    # Your original Case 3 condition in code:
+    # Case 3:
     #   (att + itt) <= ti < (att + tau)
     mask3 = (ti >= att_itt) & (ti < att_tau)
 
@@ -220,7 +213,7 @@ def torch_deltaM_multite_model_batch(
 
     boundary2 = att_itt - ti  # (B,L)
 
-    # Subcase partition exactly like your if/elif/else:
+    # Subcase partition:
     sub21 = mask2 & (te >= 0.0) & (te < boundary2)
     sub22 = mask2 & (te >= boundary2) & (te < itt_t)
     sub23 = mask2 & ~(sub21 | sub22)
